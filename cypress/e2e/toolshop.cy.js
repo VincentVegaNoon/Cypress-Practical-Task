@@ -7,108 +7,60 @@ import { registerPage } from "../pages/RegisterPage";
 import { productPage } from "../pages/ProductPage";
 import { profilePage } from "../pages/ProfilePage";
 import { favoritesPage } from "../pages/FavoritesPage";
+import { getTestData } from "../data/testData";
 
 describe("ToolShop User Journey - Cypress", () => {
-  it("Filter and sort products", () => {
+  const registerAndLogin = (userData) => {
+    loginPage.open();
+    loginPage.goToRegistration();
+
+    registerPage.registerUser(userData);
+    loginPage.login(userData.email, userData.password);
     homePage.open();
-    homePage.filterByCategory("Hand Tools");
-    homePage.sortBy("Name (A - Z)");
+  };
+
+  it("Filter and sort products", () => {
+    const data = getTestData();
+    homePage.open();
+    homePage.filterByCategory(data.category);
+    homePage.sortBy(data.sortOption);
     homePage.verifyProductsAreSortedAlphabetically();
   });
   it("Successful checkout", () => {
-    const uniqueEmail = `testuser_${Date.now()}@example.com`;
-    const password = "Pas22sword1223!";
+    const data = getTestData();
+    registerAndLogin(data.newUser);
 
-    loginPage.open();
-    loginPage.goToRegistration();
-    registerPage.registerUser({
-      firstName: "John",
-      lastName: "Doe",
-      dob: "1990-01-01",
-      address: "Test Street 1",
-      postcode: "12345",
-      city: "Test City",
-      state: "Test State",
-      country: "Poland",
-      phone: "123456789",
-      email: uniqueEmail,
-      password: password,
-    });
-
-    loginPage.open();
-    loginPage.login(uniqueEmail, password);
-
-    homePage.open();
-
-    homePage.searchForProduct("Claw Hammer");
-    cy.contains("h5", "Claw Hammer").click();
+    homePage.searchForProduct(data.productToCart);
+    cy.contains("h5", data.productToCart).click();
 
     productPage.addToCart();
 
     navbar.goToCart();
     cartPage.proceedToCheckout();
-    checkoutPage.completeCheckout("Cash on Delivery");
+    checkoutPage.completeCheckout(data.paymentMethod);
 
-    checkoutPage.verifySuccessMessage("Payment was successful");
+    checkoutPage.verifySuccessMessage(data.successMessage);
   });
   it("Check User Profile", () => {
-    const uniqueEmail = `john.profile_${Date.now()}@example.com`;
-    const password = "Password12dsadsa3!";
-
-    loginPage.open();
-    loginPage.goToRegistration();
-    registerPage.registerUser({
-      firstName: "John",
-      lastName: "Doe",
-      dob: "1990-01-01",
-      address: "Test Street 1",
-      postcode: "12345",
-      city: "Test City",
-      state: "Test State",
-      country: "Poland",
-      phone: "123456789",
-      email: uniqueEmail,
-      password: password,
-    });
-
-    loginPage.login(uniqueEmail, password);
+    const data = getTestData();
+    registerAndLogin(data.newUser);
 
     navbar.goToMyAccount();
     profilePage.openProfileTab();
 
-    profilePage.verifyEmail(uniqueEmail);
+    profilePage.verifyEmail(data.newUser.email);
   });
   it("Add an item to the favorites list", () => {
-    const uniqueEmail = `fav_user_${Date.now()}@example.com`;
-    const password = "Passwdsadsaord123!";
-    const productName = "Sheet Sander";
+    const data = getTestData();
+    registerAndLogin(data.newUser);
 
-    loginPage.open();
-    loginPage.goToRegistration();
-    registerPage.registerUser({
-      firstName: "Jane",
-      lastName: "Doe",
-      dob: "1990-01-01",
-      address: "Test Street",
-      postcode: "12345",
-      city: "Test City",
-      state: "Test State",
-      country: "Poland",
-      phone: "123456789",
-      email: uniqueEmail,
-      password: password,
-    });
-    loginPage.login(uniqueEmail, password);
-
-    homePage.open();
-    homePage.searchForProduct(productName);
-    homePage.openProductDetails(productName);
+    homePage.searchForProduct(data.productToFavorites);
+    homePage.openProductDetails(data.productToFavorites);
 
     productPage.addToFavorites();
-
-    productPage.verifyToastMessage("Product added to your favorites list");
+    productPage.verifyToastMessage(data.favoriteToastMessage);
 
     navbar.goToMyFavorites();
-    favoritesPage.verifyProductIsInFavorites(productName);
+    favoritesPage.verifyProductIsInFavorites(data.productToFavorites);
   });
 });
