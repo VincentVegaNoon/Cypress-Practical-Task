@@ -14,9 +14,14 @@ describe("ToolShop User Journey - Cypress", () => {
     loginPage.open();
     loginPage.goToRegistration();
 
-    registerPage.registerUser(userData);
-    loginPage.login(userData.email, userData.password);
-    homePage.open();
+    cy.env(["USER_PASSWORD"]).then((envVars) => {
+      userData.password = envVars.USER_PASSWORD;
+
+      registerPage.registerUser(userData);
+      loginPage.login(userData.email, userData.password);
+
+      homePage.open();
+    });
   };
 
   it("Filter and sort products", () => {

@@ -9,7 +9,7 @@ class HomePage {
 
   sortBy(option) {
     cy.get('[data-test="sort"]').select(option);
-    cy.wait(1000); //zapytac jak to zrobic bez wait
+    cy.wait(1000); //zapytac jak to zrobic bez wait // nie udalo sie
   }
 
   verifyProductsAreSortedAlphabetically() {

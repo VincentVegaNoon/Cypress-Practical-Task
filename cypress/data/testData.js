@@ -12,7 +12,6 @@ export const getTestData = () => {
       state: "Test State",
       country: "Poland",
       phone: "123456789",
-      password: "Pass32w3ord123!",
       email: `testuser_${timestamp}@example.com`,
     },
 
